@@ -12,19 +12,22 @@ function createFallingSyllables(syllables) {
     const fallingArea = document.getElementById('fallingArea');
     fallingArea.innerHTML = '';  // Clear previous syllables
 
-    syllables.forEach(syllable => {
-        const syllableElement = document.createElement('div');
-        syllableElement.textContent = syllable;
-        syllableElement.style.position = 'absolute';
-        syllableElement.style.left = `${Math.random() * (fallingArea.clientWidth - 20)}px`;
-        syllableElement.style.top = `${Math.random() * -200}px`;
-        syllableElement.style.fontFamily = "'Noto Sans KR', sans-serif";
-        syllableElement.style.fontSize = `${Math.random() * (30 - 13) + 13}px`; // 폰트 크기를 13px 이상, 30px 이하로 설정
-        syllableElement.style.color = getRandomColor();
-        fallingArea.appendChild(syllableElement);
+    // 일정 주기로 새로운 눈을 생성하는 함수 호출
+    setInterval(() => {
+        syllables.forEach(syllable => {
+            const syllableElement = document.createElement('div');
+            syllableElement.textContent = syllable;
+            syllableElement.classList.add('syllable');
+            syllableElement.style.left = `${Math.random() * (fallingArea.clientWidth - 20)}px`;
+            syllableElement.style.top = `${Math.random() * -200}px`;
+            syllableElement.style.fontFamily = "'Noto Sans KR', sans-serif";
+            syllableElement.style.fontSize = `${Math.random() * (30 - 13) + 13}px`; // 폰트 크기를 13px 이상, 30px 이하로 설정
+            syllableElement.style.color = getRandomColor();
+            fallingArea.appendChild(syllableElement);
 
-        animateSyllable(syllableElement);
-    });
+            animateSyllable(syllableElement);
+        });
+    }, 5000); // 5초마다 새로운 눈 생성
 
     fallingArea.addEventListener('mousemove', handleMouseMove);
 }
@@ -56,10 +59,13 @@ function animateSyllable(element) {
 
             requestAnimationFrame(fall);
         } else {
-            element.style.top = `${-20}px`;
-            element.style.left = `${Math.random() * (fallingArea.clientWidth - 20)}px`;
-            speed = 0.5; // 속도 초기화
-            requestAnimationFrame(fall);
+            // 음절이 화면 하단에 도달하면 멈추고 사라지는 애니메이션 시작
+            element.style.top = `${fallingAreaHeight - element.clientHeight}px`;
+            element.style.animation = 'melt 3s forwards';
+            // 애니메이션이 끝난 후 제거
+            element.addEventListener('animationend', () => {
+                element.remove();
+            });
         }
     }
 
